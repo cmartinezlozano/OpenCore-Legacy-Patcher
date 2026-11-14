@@ -88,3 +88,43 @@ with an installed candidate. A new root-patch installation/reboot has **not**
 been attempted. The candidate is not declared safe to install or boot-validated.
 
 Local machine logs and captured AIR are not included in this source proposal.
+
+## Second boot failure — additive rc5 candidate withdrawn
+
+The additive candidate installed at 19:59:30, completed kernel cache rebuilding,
+and its six modified/added installed files matched the image. The user reports
+the same Apple-logo progress-bar hang and recovered at 20:42 using the working
+patch. Installation verification did not demonstrate boot compatibility.
+
+Current installed app Info.plist identifies refs/tags/3.0.0-rc.3. The recovered
+root patch metadata also identifies rc3 / PatcherSupportPkg 2.0.2, patched at
+20:42:25. The failed candidate itself did use the verified official rc5 app
+and support image 2.0.5. These facts must not be conflated.
+
+Read-only comparison of 337 selected official-rc5 payload entries against the
+recovered system found 19 differences and no missing entries; this does not
+establish whether the official rc5 baseline alone would boot on this system.
+The recovered base is not byte-identical to the full selected rc5 payload.
+
+An additional release-process omission is confirmed: the six candidate files
+were ad-hoc signed. PatcherSupportPkg ci.py explicitly replaces ad-hoc signatures
+with the OpenCore Legacy Patcher Software Signing identity; build-dmg.sh signs
+the final image with it. That release identity is not present locally. The old
+checks incorrectly treated codesign --verify on ad-hoc files as sufficient
+release-signing validation and retained the reference .signed marker. This is
+a packaging mismatch, not a proven single cause of the boot hang. No signing
+identity was generated or trusted, and no SIP/AMFI change was made.
+
+A new loader-only probe loaded both official and candidate Metal wrappers but
+produced duplicate Objective-C classes in both cases because the original system
+wrapper was already present. The result is NOT accepted as a boot-equivalent
+validation. No GPU commands or system injection were performed.
+
+The WindowServer CPU report at 20:16–20:18 belongs to the recovered/unaccelerated
+boot, not a trace proving the failed candidate's crash. Retained logs show the
+20:02 shutdown and the 20:10 recovered boot; no failing-module trace identifies
+the intervening hang. The six candidate signatures have 4-KiB pages; generic
+16-KiB-page warnings in recovered-boot logs do not identify them as the cause.
+
+The candidate app was renamed .app.RETIRADA, its manifest marked FAILED, and
+both build/package entry points disabled. No further system patch was applied.

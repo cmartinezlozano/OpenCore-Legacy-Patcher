@@ -9,6 +9,7 @@ from rc5_additive import digest, inventory, run, validate_delta
 
 
 def package(root):
+    raise RuntimeError('WITHDRAWN after a second boot failure: release signing and system startup validation are incomplete')
     reference = json.loads((root / 'rc5-inventory.json').read_text())
     recorded = json.loads((root / 'candidate-inventory.json').read_text())
     actual = inventory(root / 'Universal-Binaries')

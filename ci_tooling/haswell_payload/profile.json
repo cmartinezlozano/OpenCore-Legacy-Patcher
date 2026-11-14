@@ -11,7 +11,7 @@
   "frontend_uuids": [
     "D5CF0007-0DB7-3029-847A-A6A8A5FDDFFF"
   ],
-  "status": "rc5 additive candidate; previous full-PR payload withdrawn after boot failure",
+  "status": "WITHDRAWN: additive rc5 candidate failed system boot; installation disabled",
   "oclp_release": "3.0.0-rc.5",
   "support_release": "2.0.5",
   "release_image_sha256": "1c290781bc726759ff37a110ffcb7182a6c6fd3d8ebce112d134d482c8de52a3"

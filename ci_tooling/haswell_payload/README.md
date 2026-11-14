@@ -1,3 +1,6 @@
+> WITHDRAWN: the additive rc5 candidate also hung at the Apple logo. Do not install.
+> Both packaging entry points are disabled. See the second-failure addendum below.
+
 # rc5 additive Haswell candidate — previous payload withdrawn
 
 The earlier full-PR `Universal-Binaries.dmg` must not be installed. The user

@@ -6,6 +6,7 @@ from rc5_additive import build
 
 
 def main():
+    raise RuntimeError('WITHDRAWN: rc5 additive candidate also failed boot; no system payload should be built for installation')
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--rc5-app', type=Path, required=True)
     parser.add_argument('--prepared-source', type=Path, required=True)
