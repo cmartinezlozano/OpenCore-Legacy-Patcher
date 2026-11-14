@@ -1,0 +1,16 @@
+{
+  "model": "MacBookPro11,2",
+  "gpu_vendor": "Intel",
+  "gpu_device_id": "0x0d26",
+  "darwin_major": 25,
+  "tested_os_build": "25G342",
+  "support_pr": "https://github.com/dortania/PatcherSupportPkg/pull/22",
+  "support_head": "7a2e12c9fc07ccd6e17c0074b9b1b6249aeba2a2",
+  "support_stock": "b0a1fa26db9ba6d64ac3f8c42174176e5a8a7e0f",
+  "oclp_base": "d7a3d94f67bee5bc26b68f042372fb6a847f9b02",
+  "frontend_uuids": [
+    "D5CF0007-0DB7-3029-847A-A6A8A5FDDFFF",
+    "D5CE0007-F460-350F-ADE9-54BD350AE6F6"
+  ],
+  "status": "experimental local payload; not installed"
+}
