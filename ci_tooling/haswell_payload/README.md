@@ -1,86 +1,60 @@
-# Combined Haswell payload for MacBookPro11,2
+# rc5 additive Haswell candidate — previous payload withdrawn
 
-This builds a complete, OCLP-compatible `Universal-Binaries.dmg`: all the payloads
-and source fixes from [PatcherSupportPkg PR #22](https://github.com/dortania/PatcherSupportPkg/pull/22),
-plus the native simulator fixes validated on MacBookPro11,2 / Intel Iris Pro
-`0x0d26` / Tahoe 26.7.3 (`25G342`). It does not install a root patch or write to the
-system volume. It is a local experimental build, not an official Dortania release.
+The earlier full-PR `Universal-Binaries.dmg` must not be installed. The user
+reported a boot failure and recovered the Mac. Its local launcher is disabled.
 
-The upstream PR is pinned to `7a2e12c9fc07ccd6e17c0074b9b1b6249aeba2a2` with stock
-inputs from `b0a1fa26db9ba6d64ac3f8c42174176e5a8a7e0f`. Its Metal compatibility shim,
-Intel and AMD adapters, driver workarounds, Tahoe compiler replacement, and existing
-payload files are retained. We rebuild the whole upstream payload; no installed
-system library is used as an output path.
+The corrected builder uses **the exact official OCLP 3.0.0-rc.5 application and
+its embedded PatcherSupportPkg 2.0.5 image**. It verifies the release tag and DMG
+SHA-256, mounts that image read-only, copies its complete contents, and permits
+only three existing user-space binaries to change plus three new helpers.
+Everything else must retain its exact content, permissions and symlink target.
+A missing compiler helper, re-signed unrelated kext, changed RC6 threshold or
+replaced compiler causes the preservation check to fail.
 
-## Native additions
-
-* **Sampler bound:** `HaswellTargetInfoCompat.dylib` loads through a weak dependency
-  in the payload's legacy `libGPUCompilerImpl.dylib`. After the actual
-  `AIRTargetInfoBuilder::setMaxBindings` factory returns, it changes only the
-  observed bogus bound `1` to `16`. It checks the exact compiler UUID and the
-  register-only function prologue before installing its in-memory trampoline.
-  Both the installed compiler and PR #22's 14.2 Beta 1 compiler were checked;
-  their relevant object layouts are identical. Disk code is never patched at
-  runtime. The hook has no debugger or launch-agent dependency.
-* **Private half2:** the existing Intel adapter gains four-byte, volatile integer
-  accesses for private `half2` loads/stores. Layout, alignment and function ABI
-  are retained. The upstream small-array and narrow-vector corrections remain
-  enabled; the earlier broad scalarizer experiment is not layered over them.
-* **Wallpaper shader:** only `space::rasterizeMeshVertex` gets a zero fallback for
-  samples whose operand is exactly `air.get_null_texture_2d()`. Other shaders and
-  bound textures are unchanged. This is a targeted compatibility fallback,
-  not a claim that Metal guarantees a particular null-texture result.
-
-All additions require the actual `MacBookPro11,2` model and Darwin 25. They stay
-off for Ivy Bridge and other Macs. `INTEL_HASWELL_PROFILE=0` disables them;
-`INTEL_HASWELL_HALF2_WORD=0` and `INTEL_HASWELL_NULL_TEXTURE=0` disable individual
-AIR additions. LLVM verifies each transformed module before code generation.
-
-## Build
-
-Obtain the PR checkout, select the pinned commit, then run from the OCLP source root:
+## Build without installing
 
 ```sh
 python3 ci_tooling/haswell_payload/build.py \
-  --support-source /path/to/PatcherSupportPkg \
-  --output /path/to/new-build-directory
+  --rc5-app /path/to/extracted/official/OpenCore-Patcher.app \
+  --prepared-source /path/to/PatcherSupportPkg-with-reviewed-native-additions \
+  --output /path/to/new-candidate
 ```
 
-This creates a separate checkout, integrates the native additions, runs the full
-upstream `Sources/LegacyMetal/build.sh`, and packages the result. Source and build
-outputs stay in the chosen directory. The final `package/Universal-Binaries.dmg`
-uses OCLP's normal encrypted disk-image format and resource passphrase. Its
-`manifest.json` records the profile, pinned revisions and SHA-256 checksums.
+Use the previously pinned PR #22 revision
+`7a2e12c9fc07ccd6e17c0074b9b1b6249aeba2a2`, with `integrate.apply` applied
+only to the source checkout. The full upstream `build.sh` is deliberately not
+run. No root patch, EFI install, service change, SIP change or reboot occurs.
+The old `package.py` entry point is disabled.
 
-`package.py PREPARED_SUPPORT OUTPUT` can package an already built tree. It verifies
-the reviewed local sources, code signatures and both weak-load dependencies
-before creating and verifying the disk image. It never invokes root patching.
+## Additions selected for this Haswell Mac
 
-## Consume with OCLP
+* PR #22 Intel compiler/driver adapter, including its narrow-vector and private
+  array fixes, plus our private half2 and exact null-texture fallback.
+* PR #22 MetalOldCompat user-space fixes; its MSL cap/default is adapted to
+  **3.0** for rc5's retained frontend. Shaders needing real 3.1 features can still
+  fail; this is not an implementation of those features on the old compiler.
+* Our sampler target-info hook, added to a copy of rc5's original frontend.
 
-OCLP already supports a local `Universal-Binaries.dmg` next to its source entry
-point. Place this image there in a **separate local checkout**, or replace the
-image only inside a separately copied local OCLP app bundle. Keep the installed
-OCLP app and its original resources intact. Do not re-sign the official executable
-or disable the privileged helper's signature checks.
+The only changed release binaries are the Tahoe Metal wrapper, the Haswell
+compiler plugin and the original Tahoe frontend (weak helper dependencies).
+The compiler generation, LLVM conversion wrapper, helper dylibs, runtime tree,
+original MetalOld library, Apple kernel extensions, framebuffer Info.plist,
+RC6 settings, all other GPUs and every non-graphics payload stay byte-identical.
 
-Selecting **Post-Install Root Patch** and starting the patch is a separate,
-privileged installation step: OCLP will modify its root-patch snapshot. Building,
-loading test components in isolated processes, and packaging this image do not
-perform that installation. The combined image has not been validated by booting
-an installed combined system; see [VALIDATION.md](VALIDATION.md) for the measured
-results and remaining checks.
+The PR's wholesale Tahoe compiler replacement, AMD/Ivy Bridge adapters and
+framebuffer power-policy changes are not imported for this candidate. Those
+changes are outside the validated user-space fixes for this Mac.
 
-## Tests
+`preservation.json` and both full inventories are mandatory outputs. A candidate
+is **not an installed or boot-validated fix**. There is no automatic installer
+or one-click launcher for the new candidate.
+
+## Regression checks
 
 ```sh
 python3 -m unittest discover -s ci_tooling/haswell_payload/tests -p 'test_*.py' -v
 ```
 
-The included native factory test exercises the real `setMaxBindings` method using
-a controlled AIR module flag and checks that adjacent target fields are unchanged.
-The synthetic AIR test checks half2 rewrites, the exact null-texture case, another
-shader and a bound texture. The upstream `i69`, `i07`, and `i44` GPU regressions are
-also run with unique shader entry-point names to prevent baseline/candidate cache
-reuse. No captured Apple AIR, private user documents or crash-report contents are
-included in this change.
+See `BOOT_FAILURE_AUDIT.md` for the observed packaging defects and the limits of
+the available boot evidence. Source credit remains with
+[dortania/PatcherSupportPkg#22](https://github.com/dortania/PatcherSupportPkg/pull/22).

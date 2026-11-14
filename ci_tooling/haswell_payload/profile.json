@@ -7,10 +7,12 @@
   "support_pr": "https://github.com/dortania/PatcherSupportPkg/pull/22",
   "support_head": "7a2e12c9fc07ccd6e17c0074b9b1b6249aeba2a2",
   "support_stock": "b0a1fa26db9ba6d64ac3f8c42174176e5a8a7e0f",
-  "oclp_base": "d7a3d94f67bee5bc26b68f042372fb6a847f9b02",
+  "oclp_base": "e2107e05d9ce574e9ac3fd8b223e20a2edb7ba53",
   "frontend_uuids": [
-    "D5CF0007-0DB7-3029-847A-A6A8A5FDDFFF",
-    "D5CE0007-F460-350F-ADE9-54BD350AE6F6"
+    "D5CF0007-0DB7-3029-847A-A6A8A5FDDFFF"
   ],
-  "status": "experimental local payload; not installed"
+  "status": "rc5 additive candidate; previous full-PR payload withdrawn after boot failure",
+  "oclp_release": "3.0.0-rc.5",
+  "support_release": "2.0.5",
+  "release_image_sha256": "1c290781bc726759ff37a110ffcb7182a6c6fd3d8ebce112d134d482c8de52a3"
 }

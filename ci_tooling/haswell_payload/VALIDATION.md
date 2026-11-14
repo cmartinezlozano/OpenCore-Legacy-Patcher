@@ -1,3 +1,6 @@
+> WITHDRAWN: this historical payload failed system boot according to the user.
+> These isolated test results do not validate installation. See BOOT_FAILURE_AUDIT.md.
+
 # Local validation — 14 November 2026
 
 Host: MacBookPro11,2, Intel Iris Pro `0x0d26`, macOS 26.7.3 (`25G342`).

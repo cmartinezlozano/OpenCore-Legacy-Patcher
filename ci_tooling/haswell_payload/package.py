@@ -37,6 +37,7 @@ def validate(source):
 
 
 def package(source, output):
+    raise RuntimeError("WITHDRAWN after boot failure: use the rc5 additive builder and preservation audit")
     source, output = source.resolve(), output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     payload, libraries = validate(source)
